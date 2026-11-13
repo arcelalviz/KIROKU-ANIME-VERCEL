@@ -60,3 +60,7 @@
 
 .quick-search-controls{display:flex;align-items:center;gap:14px;border-top:1px solid #ffffff22;padding:14px 25px 19px;flex-wrap:wrap}.quick-search-controls>label{font-size:10px;letter-spacing:1.5px;color:#eab9c4;font-weight:800}.quick-search-controls select{background:#2c2436;color:#fff;border:1px solid #ffffff2d;border-radius:8px;min-height:40px;min-width:160px;padding:0 10px;outline:0;font-size:13px}.quick-search-controls option{background:#241c30}.quick-search-controls button{margin-left:auto;color:#ffc5c1;background:none;border:0;font-size:12px;font-weight:800}.quick-search-controls button:hover{text-decoration:underline}
 @media(max-width:700px){.quick-search-controls{gap:10px;padding:13px 20px}.quick-search-controls select{flex:1 1 170px}.quick-search-controls button{margin-left:0}}
+
+/* Live catalog troubleshooting link */
+.feed-diagnostic-link { display: inline-block; margin-top: .55rem; color: #d2b6ff; text-decoration: underline; text-underline-offset: .2em; font-size: .9rem; }
+.feed-diagnostic-link:hover { color: #fff; }

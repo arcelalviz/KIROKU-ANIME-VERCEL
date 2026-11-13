@@ -5,6 +5,9 @@ import { SpotlightHero } from "@/components/spotlight-hero";
 import { getAiring, getChart } from "@/lib/kitsu";
 import { ForYou } from "@/components/for-you";
 
+// Load the anime feed at request time; do not bake a failed upstream response into the deployment.
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const [popular, rated, airing] = await Promise.all([getChart("popular"), getChart("rated"), getAiring()]);
   return <>

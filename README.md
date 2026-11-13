@@ -21,7 +21,7 @@ This release combines the cinematic KIROKU V3.2 UI with **Step 2 (accounts + pri
 
 ### Real catalog and limitations
 
-The app uses **Kitsu's live JSON:API** (`https://kitsu.io/api/edge/anime`), rather than hard-coded sample titles or the discontinued Jikan public API. Results are requested from the Next.js server with a 10-minute fetch cache. Browse advances with Kitsu's `page[offset]` and `page[limit]`, so you are **not limited to 20 anime overall**. Filter options use the documented Kitsu API. Top 10 refers to *Kitsu popularity/rating rankings*, not real Netflix viewing figures.
+The app uses **Kitsu's live JSON:API** (`https://kitsu.app/api/edge/anime` (fallback: `https://kitsu.io/api/edge/anime`)), rather than hard-coded sample titles or the discontinued Jikan public API. Results are requested from the Next.js server with a 10-minute fetch cache. Browse advances with Kitsu's `page[offset]` and `page[limit]`, so you are **not limited to 20 anime overall**. Filter options use the documented Kitsu API. Top 10 refers to *Kitsu popularity/rating rankings*, not real Netflix viewing figures.
 
 **No external API guarantees every anime ever released.** This source can include missing entries, limited coverage, partial ratings, occasional downtime, or third-party restrictions. KIROKU excludes adult-rated and unrated anime from discovery. No unlicensed streaming or unauthorized bulk scraping is included. Verify Kitsu production terms and artwork rights before making KIROKU a large public service.
 
@@ -126,3 +126,17 @@ Next.js App Router renders catalog pages and server-side Kitsu requests. React c
 - Real personalization is a lightweight genre-similarity recommendation seeded from up to three saved anime—not a trained ML recommendation engine.
 - Kitsu is an external data source; ensure permission for your intended production use and verify artwork licensing. If you plan to compete at MyAnimeList scale, you will eventually need a separately licensed/in-house anime catalog, stronger search infrastructure, performance monitoring, error tracking and moderation operations.
 - A guest list is stored on the same browser/origin under `kyo:library:v1`, preserving earlier KIROKU versions. To sync it, sign in and **manually** choose Import browser titles.
+
+
+## Troubleshooting: anime pages are empty (catalog hotfix)
+
+Open `https://YOUR-VERCEL-DOMAIN.vercel.app/api/catalog-health` in a browser.
+The endpoint tests a real request from Vercel to Kitsu, without requiring sign-in.
+
+- `ok: true`, `sampleCount: 2`: Vercel can reach Kitsu. If the homepage is still empty, inspect its Vercel **Functions** logs and reload `/search`.
+- `ok: false`, an `HTTP` error or timeout: the upstream anime API is inaccessible, or a query is being rejected. Check the reported HTTP status.
+- `ok: false`, `Unexpected catalog response format`: Kitsu returned a nonstandard response.
+
+This patch removes the unsupported `PG-13` Kitsu filter (valid Kitsu filters are `G`, `PG`, `R`, `R18`) and retries using an alternative official Kitsu hostname. Public discovery includes only `G` and `PG` entries. For a more expansive age-appropriate catalog later, consider adding a separately licensed source with its own content ratings.
+
+Deploy this ZIP's **contents**, not the outer folder. No Supabase database migration is required for this patch.

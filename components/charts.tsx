@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight, CircleDot } from "lucide-react";
 import type { Anime } from "@/lib/types";
 import { AnimeCard } from "./anime-card";
@@ -18,7 +19,7 @@ export function AnimeRail({ title, kicker, items, ranked, id, tagline, index }: 
       </div>
       {items.length ? <div ref={list} className={`anime-rail ${ranked ? "ranked-rail" : ""}`} tabIndex={0} aria-label={`${title} anime carousel`}>
         {items.map((anime, i) => <AnimeCard anime={anime} key={`${id || "rail"}-${anime.id}`} rank={ranked ? i + 1 : undefined}/>)}
-      </div> : <div className="feed-error"><span className="feed-error-icon"><CircleDot size={26}/></span><div><strong>The catalog is taking a break.</strong><p>These titles are temporarily unavailable. Try refreshing once the anime service is back online.</p></div><ArrowUpRight size={21}/></div>}
+      </div> : <div className="feed-error"><span className="feed-error-icon"><CircleDot size={26}/></span><div><strong>The catalog is taking a break.</strong><p>These titles are temporarily unavailable. Try refreshing or check whether KIROKU can reach the anime catalog.</p><Link href="/api/catalog-health" className="feed-diagnostic-link">Check anime API connection ↗</Link></div><ArrowUpRight size={21}/></div>}
     </div>
   </section>;
 }

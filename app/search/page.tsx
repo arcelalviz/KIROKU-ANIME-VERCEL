@@ -7,6 +7,9 @@ import { browseAnime, GENRES, SEASONS, SORT_OPTIONS, TYPE_OPTIONS, type BrowsePa
 export const metadata: Metadata = { title: "Explore the anime catalog" };
 type Params = Record<string, string | string[] | undefined>;
 function param(value: string | string[] | undefined) { return typeof value === "string" ? value : ""; }
+// Load the anime feed at request time; do not bake a failed upstream response into the deployment.
+export const dynamic = "force-dynamic";
+
 export default async function SearchPage({ searchParams }: { searchParams: Promise<Params> }) {
   const params = await searchParams;
   const filters: BrowseParams = {

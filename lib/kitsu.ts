@@ -1,7 +1,9 @@
 import type { Anime } from "./types";
 
 /** Kitsu JSON:API; public reads only. All external calls run on the Next.js server. */
-const API_BASE = "https://kitsu.io/api/edge";
+// Try the currently used Kitsu host first, then its legacy hostname.
+// Public anime browsing is intentionally independent of Supabase authentication.
+const API_BASES = ["https://kitsu.app/api/edge", "https://kitsu.io/api/edge"] as const;
 
 export const GENRES = [
   { value: "", label: "All genres" },
@@ -45,17 +47,52 @@ type KitsuAnime = {
 type ListResponse = { data?: KitsuAnime[]; links?: { next?: string | null }; meta?: { count?: number } };
 type ItemResponse = { data?: KitsuAnime };
 
-async function request<T>(path: string, query?: Record<string, string>): Promise<T> {
-  const url = new URL(`${API_BASE}${path}`);
-  Object.entries(query || {}).forEach(([key, value]) => { if (value) url.searchParams.set(key, value); });
-  const res = await fetch(url.toString(), {
-    headers: { Accept: "application/vnd.api+json" },
-    next: { revalidate: 600 },
-    signal: AbortSignal.timeout(12500),
-  });
-  if (!res.ok) throw new Error(`Anime catalog temporarily unavailable (${res.status})`);
-  return (await res.json()) as T;
+async function request<T>(path: string, query?: Record<string, string>, noStore = false): Promise<T> {
+  const errors: string[] = [];
+  for (const base of API_BASES) {
+    const url = new URL(`${base}${path}`);
+    Object.entries(query || {}).forEach(([key, value]) => {
+      if (value) url.searchParams.set(key, value);
+    });
+    try {
+      const res = await fetch(url.toString(), {
+        headers: { Accept: "application/vnd.api+json" },
+        ...(noStore ? { cache: "no-store" as const } : { next: { revalidate: 600 } }),
+        signal: AbortSignal.timeout(8500),
+      });
+      if (!res.ok) {
+        errors.push(`${url.hostname}: HTTP ${res.status}`);
+        continue;
+      }
+      const response = (await res.json()) as T;
+      return response;
+    } catch (error) {
+      const cause = error instanceof Error ? error.message : "Connection failed";
+      errors.push(`${url.hostname}: ${cause}`);
+    }
+  }
+  throw new Error(`Unable to reach Kitsu (${errors.join("; ")})`);
 }
+
+/** Safe public diagnostic for deployments with empty anime listings. */
+export async function checkCatalogConnection() {
+  try {
+    const response = await request<ListResponse>("/anime", {
+      "page[limit]": "2",
+      "filter[ageRating]": "G,PG",
+      sort: "popularityRank",
+    }, true);
+    if (!Array.isArray(response.data)) {
+      return { ok: false, reason: "Unexpected catalog response format", sampleCount: 0 };
+    }
+    return { ok: response.data.length > 0, sampleCount: response.data.length,
+      reason: response.data.length ? "Catalog responded successfully" : "Catalog returned zero records" };
+  } catch (error) {
+    return { ok: false, sampleCount: 0,
+      reason: error instanceof Error ? error.message : "Catalog request failed" };
+  }
+}
+
 function cleanText(text: string) { return text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(); }
 function normalize(input: KitsuAnime): Anime {
   const a = input.attributes || {};
@@ -76,8 +113,10 @@ function normalize(input: KitsuAnime): Anime {
 }
 // The public Kitsu API already excludes explicit content. This app also excludes
 // 17+/adult-rated titles and excludes unrated entries from discovery for safety.
-function suitable(item: Anime) { return ["G", "PG", "PG-13"].includes((item.ageRating || "").toUpperCase()); }
-const PUBLIC_RATINGS = "G,PG,PG-13";
+function suitable(item: Anime) { return ["G", "PG"].includes((item.ageRating || "").toUpperCase()); }
+// Valid values documented by Kitsu are G, PG, R and R18.
+// Use G and PG for public discovery; PG-13 is not a valid Kitsu filter.
+const PUBLIC_RATINGS = "G,PG";
 
 /** Actual server-side pagination, not a fixed 20-title search or fake entire catalog. */
 export async function browseAnime(filters: BrowseParams = {}): Promise<BrowseResult> {
