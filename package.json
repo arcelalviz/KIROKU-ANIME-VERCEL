@@ -1,6 +1,6 @@
 {
   "name": "kiroku-anime-universe",
-  "version": "1.0.0",
+  "version": "5.0.3",
   "private": true,
   "scripts": {
     "dev": "next dev",

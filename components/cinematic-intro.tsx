@@ -17,12 +17,12 @@ export function CinematicIntro() {
     }
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const out = window.setTimeout(() => setExiting(true), 2450);
+    const out = window.setTimeout(() => setExiting(true), 2030);
     const done = window.setTimeout(() => {
       setVisible(false);
       try { sessionStorage.setItem(INTRO_KEY, "yes"); } catch { /* storage optional */ }
       document.body.style.overflow = previousOverflow;
-    }, 3270);
+    }, 2870);
     return () => {
       window.clearTimeout(out);
       window.clearTimeout(done);

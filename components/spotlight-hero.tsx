@@ -34,8 +34,8 @@ export function SpotlightHero({ items }: { items: Anime[] }) {
 
   return <section className="spotlight" aria-label="Featured anime" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocusCapture={() => setPaused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setPaused(false); }}>
     <div className="spotlight-visual" key={`art-${current.id}`} aria-hidden="true">
-      {(current.cover || current.poster) && <img className="spotlight-backdrop" src={current.cover || current.poster || ""} alt="" fetchPriority="high"/>}
-      {current.poster && <div className="spotlight-art-frame"><img className="spotlight-side-poster" src={current.poster} alt="" fetchPriority="high"/><div className="art-frame-caption"><span>KIROKU ARCHIVE</span><span>{String(active + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}</span></div></div>}
+      {(current.cover || current.poster) && <img className="spotlight-backdrop" src={current.cover || current.poster || ""} alt="" decoding="async" fetchPriority="high"/>}
+      {current.poster && <div className="spotlight-art-frame"><img className="spotlight-side-poster" src={current.poster} alt="" decoding="async" fetchPriority="auto"/><div className="art-frame-caption"><span>KIROKU ARCHIVE</span><span>{String(active + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}</span></div></div>}
     </div>
     <div className="spotlight-wash" aria-hidden="true"/>
     <div className="hero-frame-line hero-frame-top" aria-hidden="true"/><div className="hero-frame-line hero-frame-bottom" aria-hidden="true"/>

@@ -1,0 +1,93 @@
+/* KIROKU V5.0.3 — Smooth Motion: compositor-friendly, responsive transitions. */
+:root { --ease-cinematic: cubic-bezier(.22, 1, .36, 1); }
+
+/* Do not animate brightness or blur across an entire page: those repaint large areas. */
+.route-stage {
+  animation: kiroku-route-in .38s var(--ease-cinematic) both;
+  min-height: 50vh;
+}
+.route-light-wipe {
+  animation: kiroku-wipe .48s ease-out both;
+  background: linear-gradient(100deg,transparent 36%,rgba(250,147,140,.11) 48%,rgba(181,160,252,.14) 54%,transparent 68%);
+}
+@keyframes kiroku-route-in {
+  from { opacity: .88; transform: translate3d(0,10px,0); }
+  to { opacity: 1; transform: translate3d(0,0,0); }
+}
+@keyframes kiroku-wipe {
+  0% { opacity: 0; transform: translate3d(-110%,0,0); }
+  35% { opacity: .7; }
+  100% { opacity: 0; transform: translate3d(110%,0,0); }
+}
+
+.intro-progress span { animation-duration: 2.03s; }
+
+/* IntersectionObserver reveals run only once; skip large blur filters. */
+[data-reveal].will-reveal {
+  filter: none;
+  opacity: 0;
+  transform: translate3d(0,16px,0);
+  transition: opacity .48s ease, transform .56s var(--ease-cinematic);
+}
+[data-reveal].will-reveal.is-revealed {
+  filter: none;
+  opacity: 1;
+  transform: translate3d(0,0,0);
+}
+
+/* The backdrop is enormous; scale it gently instead of an extended Ken Burns loop. */
+.spotlight-backdrop {
+  animation: kiroku-art-reveal .8s ease-out both;
+  backface-visibility: hidden;
+}
+.spotlight-visual { animation: kiroku-visual-reveal .58s ease-out both; }
+.spotlight-copy { animation: kiroku-copy-reveal .5s var(--ease-cinematic) both; }
+@keyframes kiroku-art-reveal { from { opacity: .35; } to { opacity: .75; } }
+@keyframes kiroku-visual-reveal { from { opacity: 0; } to { opacity: 1; } }
+@keyframes kiroku-copy-reveal { from { opacity: 0; transform: translate3d(0,12px,0); } to { opacity: 1; transform: translate3d(0,0,0); } }
+
+/* Compositor-friendly card hover: transform only, avoid full-image filter tweens. */
+.anime-card { transition: transform .3s var(--ease-cinematic); }
+.anime-cover > img { transition: transform .42s var(--ease-cinematic); }
+.anime-card:hover .anime-cover > img { transform: scale(1.035); }
+
+/* Filter changes remain on the client; the grid stays responsive while loading. */
+.discovery-form { transition: opacity .16s ease; }
+.discovery-form.discovery-pending { opacity: .72; }
+.discovery-submit:disabled { cursor: progress; opacity: .72; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* Animated loading placeholders are reserved-space boxes, not layout-shifting content. */
+.kiroku-skeleton-page { min-height: 70vh; padding-top: 135px; padding-bottom: 90px; }
+.kiroku-skeleton { border-radius: 12px; background: linear-gradient(110deg,#231e2e 16%,#34273b 35%,#231e2e 54%); background-size: 220% 100%; animation: kiroku-shimmer 1.7s ease-in-out infinite; }
+.kiroku-skeleton-title { width: min(590px,75%); height: 64px; margin: 20px 0 40px; }
+.kiroku-skeleton-label { width: 155px; height: 14px; }
+.kiroku-skeleton-grid { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 22px; }
+.kiroku-skeleton-card { width: 100%; aspect-ratio: 2/3; }
+.kiroku-skeleton-detail { display:grid; grid-template-columns: 240px minmax(0,650px); gap:44px; align-items:start; }
+.kiroku-skeleton-poster { height: 340px; }
+.kiroku-skeleton-description { width:100%; height:18px; margin-bottom:12px; }
+@keyframes kiroku-shimmer { 0% { background-position: 110% 0; } 100% { background-position: -110% 0; } }
+
+@media (max-width: 1100px) {
+  .kiroku-skeleton-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .ambient-particles { opacity: .34; }
+}
+@media (max-width: 650px) {
+  .kiroku-skeleton-page { padding-top: 110px; }
+  .kiroku-skeleton-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+  .kiroku-skeleton-title { height:42px; }
+  .kiroku-skeleton-detail { grid-template-columns: 110px minmax(0,1fr); gap:20px; }
+  .kiroku-skeleton-poster { height:165px; }
+  .ambient-particles { opacity:.22; }
+  .ambient-particle:nth-child(n+9) { display:none; }
+  .site-header { backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+  .search-overlay { backdrop-filter:blur(7px); -webkit-backdrop-filter:blur(7px); }
+  body::before { display:none; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .route-stage,.route-light-wipe,.spotlight-backdrop,.spotlight-visual,.spotlight-copy,.kiroku-skeleton { animation:none!important; }
+  [data-reveal].will-reveal { opacity:1;transform:none;transition:none; }
+  .ambient-particles { display:none; }
+}
+@media (prefers-reduced-data:reduce) { .ambient-particles { display:none; } }

@@ -4,11 +4,11 @@ import type { Anime } from "@/lib/types";
 import { formatYear } from "@/lib/format";
 
 export function AnimeCard({ anime, rank, compact = false }: { anime: Anime; rank?: number; compact?: boolean }) {
-  return <Link href={`/anime/${anime.id}`} className={`anime-card ${rank ? "is-ranked" : ""} ${compact ? "compact" : ""}`} aria-label={`Discover ${anime.title}`}>
+  return <Link href={`/anime/${anime.id}`} prefetch={false} className={`anime-card ${rank ? "is-ranked" : ""} ${compact ? "compact" : ""}`} aria-label={`Discover ${anime.title}`}>
     <div className="anime-poster-area">
       {rank !== undefined && <span className="ranking-digit" aria-hidden="true">{String(rank).padStart(2, "0")}</span>}
       <div className="anime-cover">
-        {anime.poster ? <img src={anime.poster} alt="" loading="lazy"/> : <div className="missing-art">KIROKU</div>}
+        {anime.poster ? <img src={anime.poster} alt="" loading="lazy" decoding="async" fetchPriority="low"/> : <div className="missing-art">KIROKU</div>}
         <div className="card-image-shade"/>
         <span className="card-open" aria-hidden="true"><ArrowUpRight size={20}/></span>
         {anime.rating !== null && <span className="card-score"><Star size={12} fill="currentColor"/> {anime.rating}%</span>}

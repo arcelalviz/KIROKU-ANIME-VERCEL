@@ -13,6 +13,7 @@ import "./globals.css";
 import "./cinematic.css";
 import "./step2.css";
 import "./complete.css";
+import "./smooth.css";
 
 export const metadata: Metadata = {
   title: { default: "KIROKU — The Anime Archive", template: "%s | KIROKU" },
